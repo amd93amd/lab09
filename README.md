@@ -1,6 +1,5 @@
 # lab09
 
-
 https://cs262-webservice.azurewebsites.net/
 https://cs262-webservice.azurewebsites.net/players
 https://cs262-webservice.azurewebsites.net/players/1
