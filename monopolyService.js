@@ -40,22 +40,6 @@ const db = pgp({
   },
 });
 
-// Configure the server and its routes.
-// Define a new route for the join query
-router.get("/player-games", async (req, res) => {
-  try {
-    const data = await db.any(`
-      SELECT p.id AS player_id, p.name AS player_name, pg.game_id, pg.score
-      FROM Player p
-      JOIN PlayerGame pg ON p.id = pg.player_id
-    `);
-    res.status(200).json(data);
-  } catch (error) {
-    console.error("Error executing query", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
 const express = require("express");
 
 const app = express();
@@ -63,6 +47,7 @@ const port = process.env.PORT || 3000;
 const router = express.Router();
 router.use(express.json());
 
+router.get("/players/:id/games", readPlayerGames);
 router.get("/", readHelloMessage);
 router.get("/players", readPlayers);
 router.get("/players/:id", readPlayer);
@@ -74,6 +59,19 @@ app.use(router);
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
 // Implement the CRUD operations.
+
+function readPlayerGames(req, res, next) {
+  db.manyOrNone(
+    "SELECT * FROM Game JOIN PlayerGame ON Game.id = PlayerGame.gameId WHERE PlayerGame.playerId = ${id}",
+    req.params
+  )
+    .then((data) => {
+      returnDataOr404(res, data);
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
 
 function returnDataOr404(res, data) {
   if (data == null) {
